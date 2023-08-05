@@ -4,16 +4,156 @@
 <head>
   <meta charset="UTF-8">
   <title>Project Gallery</title>
-  <!--
-      Add CSS as you like linked or otherwise, but encapsulate most within the card components.  
-
-      You should also include the script code separately.  You may wish to have individual files 
-      for the customElement vs the page layout and CRUD actions if you do them. Regardless of 
-      what you do you use ES modules and vanilla JS.
-    -->
+  <style media="screen">
+    :root {
+	--cardborder : 5px solid pink;
+	--cardcolor : Cornsilk;
+    }
+  </style>
 </head>
 
 <body>
+    <input type="button" id="Load Local" value="Load Local">
+    <input type="button" id="Load Remote" value="Load Remote">
+
+	<template id="custom">
+	<div style="border:  var(--cardborder);background-color: var(--cardcolor); padding: 10px; margin-bottom: 20px; display: flex;
+                flex-direction: column;align-items: center;">
+		- <h2>Project Name</h2>
+		- <img src="image.jpg" alt="Project Image">
+		- <p>Project Description</p>
+		- <a href="URL">Read More</a>
+	</div>
+    </template>
+    
+    <div id="cardContainer">
+    </div>
+
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const dataToSave = [
+  {
+    "name": "HW 1",
+    "image": "https://source.unsplash.com/random/600x400/?",
+    "description": "Exploring the Web Medium and First Steps in Web Development",
+    "href": "https://master--inspiring-mooncake-2a0696.netlify.app/"
+  },
+  {
+    "name": "HW 2",
+    "image": "https://source.unsplash.com/random/600x400/?",
+    "description": "Plan Site and Semantic HTML Execution - Site Build Out Phase 1",
+    "href": "https://majestic-moonbeam-5e82f5.netlify.app/"
+  },
+  {
+    "name": "HW 3",
+    "image": "https://source.unsplash.com/random/600x400/?",
+    "description": "Standards Based CSS Responsive Web Design - Site Build Out Phase 2",
+    "href": "https://deft-kitten-c3ef1b.netlify.app/"
+  },
+  {
+    "name": "HW 4",
+    "image": "https://source.unsplash.com/random/600x400/?",
+    "description": "DOM Manipulation",
+    "href": "https://unique-medovik-598844.netlify.app/"
+  }
+  ]
+  localStorage.setItem("myData", JSON.stringify(dataToSave));});
+  
+  document.getElementById("Load Local").addEventListener("click", function () {
+    const dataFromLocalStorage = JSON.parse(localStorage.getItem("myData"));
+    if (dataFromLocalStorage) {
+      populateCards(dataFromLocalStorage);
+
+    } else {
+      alert("No data found in Local Storage.");
+    }
+  });
+
+  document.getElementById("Load Remote").addEventListener("click", function () {
+    const apiKey="$2b$10$na5k1CJfkv6VG28ozqwsH.urlIo5n1nff6yT4f2x1q7JFYx3iZWxC"
+    const url='https://api.jsonbin.io/v3/b/64cebc4fb89b1e2299cbf7a1'
+    fetch(url,{
+    headers:{
+        'X-Access-Key':apiKey,
+        'Content-Type':'application/json',
+    }
+    })
+    .then(response => {return response.json();})
+    .then(data => {populateCards(data['record']);});
+  });
+
+  function populateCards(data) {
+    const cardContainer = document.getElementById("cardContainer");
+    cardContainer.innerHTML = "";
+
+    data.forEach((item) => {
+      const card = document.createElement("my-custom-element");
+      const shadowRoot = card.shadowRoot;
+
+      shadowRoot.querySelector("h2").textContent = item.name;
+      shadowRoot.querySelector("p").textContent = item.description;
+      shadowRoot.querySelector("a").setAttribute('href',item.href);
+      topics=[
+  "Nature",
+  "Animals",
+  "Technology",
+  "Food",
+  "Travel",
+  "Art",
+  "Sports",
+  "Science",
+  "Architecture",
+  "Music",
+  "Fashion",
+  "Education",
+  "Festivals",
+  "Business",
+  "Health",
+  "Movies",
+  "Books",
+  "History",
+  "Fitness",
+  "Photography",
+  "Gardening",
+  "Cuisine",
+  "Space",
+  "Cars",
+  "Social Media",
+  "Crafts",
+  "Technology",
+  "Fitness",
+  "DIY",
+  "Sustainability",
+  "Finance",
+  "Fashion Design",
+  "Baking",
+  "Space Exploration",
+  "Travel Photography",
+  "Adventure Sports",
+  "Healthy Recipes",
+  "Music Production",
+];
+      const randomIndex = Math.floor(Math.random() * topics.length);
+      shadowRoot.querySelector("img").setAttribute('src',item.image+topics[randomIndex]);
+      cardContainer.appendChild(card);
+    });
+  }
+	
+  class MyCustomElement extends HTMLElement{
+	constructor(){
+	    super();
+		const shadowRoot=this.attachShadow({mode:'open'});
+		const template=document.getElementById("custom");
+		const templateContent=template.content.cloneNode(true);
+		shadowRoot.appendChild(templateContent);
+	}
+}
+	
+	customElements.define('my-custom-element',MyCustomElement)
+</script>
+
   <!--
       This page will contain a list of cards which will contain cards that overview each project in 
       your portfolio. You will dynamically create these cards as CustomElements using JavaScript 
